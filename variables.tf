@@ -41,3 +41,9 @@ variable "cluster_type_code" {
   description = "The cluster_type of the cluster"
   default     = "ocp4"
 }
+
+variable "apply" {
+  type        = bool
+  description = "Flag indicating that the module should be applied"
+  default     = true
+}
