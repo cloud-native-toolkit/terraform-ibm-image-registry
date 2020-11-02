@@ -11,7 +11,7 @@ locals {
   chart_dir             = "${local.gitops_dir}/${local.chart_name}"
   registry_url_file     = "${local.tmp_dir}/registry_url.val"
   registry_namespace    = var.registry_namespace != "" ? var.registry_namespace : var.resource_group_name
-  registry_url          = data.local_file.registry_url.content
+  registry_url          = data.local_file.registry_url[0].content
   release_name          = "image-registry"
   global_config = {
     clusterType = var.cluster_type_code
