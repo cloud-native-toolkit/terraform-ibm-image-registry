@@ -45,7 +45,7 @@ resource "null_resource" "create_dirs" {
 # this should probably be moved to a separate module that operates at a namespace level
 resource "null_resource" "create_registry_namespace" {
   count = var.apply ? 1 : 0
-  depends_on = ["null_resource.create_dirs"]
+  depends_on = [null_resource.create_dirs]
 
   provisioner "local-exec" {
     command = "${path.module}/scripts/create-registry-namespace.sh ${local.registry_namespace} ${var.cluster_region} ${local.registry_url_file}"
