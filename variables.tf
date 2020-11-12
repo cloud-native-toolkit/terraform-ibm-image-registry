@@ -10,6 +10,18 @@ variable "registry_namespace" {
   default     = ""
 }
 
+variable "registry_user" {
+  type        = string
+  description = "The username to authenticate to the IBM Container Registry"
+  default     = "iamapikey"
+}
+
+variable "registry_password" {
+  type        = string
+  description = "The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`"
+  default     = ""
+}
+
 variable "cluster_region" {
   type        = string
   description = "The IBM Cloud region where the cluster will be/has been installed."

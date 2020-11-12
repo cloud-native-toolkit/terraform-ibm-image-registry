@@ -11,6 +11,8 @@ locals {
   chart_dir             = "${local.gitops_dir}/${local.chart_name}"
   registry_url_file     = "${local.tmp_dir}/registry_url.val"
   registry_namespace    = var.registry_namespace != "" ? var.registry_namespace : var.resource_group_name
+  registry_user         = var.registry_user != "" ? var.registry_user : "iamapikey"
+  registry_password     = var.registry_password != "" ? var.registry_password : var.ibmcloud_api_key
   registry_url          = var.apply ? data.local_file.registry_url[0].content : ""
   release_name          = "image-registry"
   global_config = {
