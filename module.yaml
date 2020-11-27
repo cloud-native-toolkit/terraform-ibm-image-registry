@@ -9,7 +9,7 @@ versions:
     - kubernetes
     - ocp3
     - ocp4
-  dependencies: []
+  dependencies:
     - id: cluster
       refs:
         - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
@@ -20,7 +20,7 @@ versions:
       refs:
         - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
           version: ">= 2.1.0"
-  variables: []
+  variables:
     - name: config_file_path
       moduleRef:
         id: cluster
