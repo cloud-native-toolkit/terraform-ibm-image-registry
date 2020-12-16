@@ -146,3 +146,16 @@ resource "helm_release" "registry_setup" {
 
   disable_openapi_validation = true
 }
+
+resource "null_resource" "set_global_pull_secret" {
+  depends_on = [null_resource.create_dirs]
+
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/global-pull-secret.sh ${var.cluster_type_code}"
+
+    environment = {
+      TMP_DIR    = local.tmp_dir
+      KUBECONFIG = var.config_file_path
+    }
+  }
+}
