@@ -17,7 +17,7 @@ ICR_FILE="${TMP_DIR}/icr.json"
 RESULT_FILE="${TMP_DIR}/config.json"
 
 echo "Getting current global pull secret"
-oc get secret pull-secret -n openshift-config -o jsonpath='{ .data.\.dockerconfigjson }' | base64 --decode > "${GLOBAL_FILE}"
+oc get secret pull-secret -n openshift-config -o jsonpath='{ .data.\.dockerconfigjson }' | base64 -d > "${GLOBAL_FILE}"
 
 if grep -q "icr.io" "${GLOBAL_FILE}"; then
   echo "The global pull secret already contains the values for icr.io. Nothing to do"
@@ -25,7 +25,7 @@ if grep -q "icr.io" "${GLOBAL_FILE}"; then
 fi
 
 echo "Getting icr pull secret"
-oc get secret all-icr-io -n default -o jsonpath='{ .data.\.dockerconfigjson }' | base64 --decode > "${ICR_FILE}"
+oc get secret all-icr-io -n default -o jsonpath='{ .data.\.dockerconfigjson }' | base64 -d > "${ICR_FILE}"
 
 echo "Merging pull secrets"
 jq -s '.[0] * .[1]' "${GLOBAL_FILE}" "${ICR_FILE}" > "${RESULT_FILE}"
