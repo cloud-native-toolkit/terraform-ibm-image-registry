@@ -148,6 +148,7 @@ resource "helm_release" "registry_setup" {
 }
 
 resource "null_resource" "set_global_pull_secret" {
+  count = var.apply ? 1 : 0
   depends_on = [null_resource.create_dirs]
 
   provisioner "local-exec" {
