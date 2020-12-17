@@ -19,6 +19,11 @@ RESULT_FILE="${TMP_DIR}/pull-secret/config.json"
 mkdir -p "${GLOBAL_DIR}"
 mkdir -p "${ICR_DIR}"
 
+if ! oc get secret/all-icr-io -n default 1> /dev/null 2> /dev/null; then
+  echo "IBM Cloud pull secret does not exist. Exiting"
+  exit 0
+fi
+
 echo "Getting current global pull secret"
 oc extract secret/pull-secret -n openshift-config --to="${GLOBAL_DIR}"
 
