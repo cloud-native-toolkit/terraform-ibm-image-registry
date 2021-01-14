@@ -26,6 +26,10 @@ fi
 
 echo "Getting current global pull secret"
 oc extract secret/pull-secret -n openshift-config --to="${GLOBAL_DIR}"
+if [[ ! -f "${GLOBAL_DIR}/.dockerconfigjson" ]]; then
+  echo "Error retrieving global pull secret"
+  exit 0
+fi
 
 if grep -q "icr.io" "${GLOBAL_DIR}/.dockerconfigjson"; then
   echo "The global pull secret already contains the values for icr.io. Nothing to do"
@@ -34,9 +38,13 @@ fi
 
 echo "Getting icr pull secret"
 oc extract secret/all-icr-io -n default --to="${ICR_DIR}"
+if [[ ! -f "${ICR_DIR}/.dockerconfigjson" ]]; then
+  echo "Error retrieving icr pull secret"
+  exit 0
+fi
 
 echo "Merging pull secrets"
-jq -s '.[0] * .[1]' "${GLOBAL_DIR}/.dockerconfigfile" "${ICR_DIR}/.dockerconfigfile" > "${RESULT_FILE}"
+jq -s '.[0] * .[1]' "${GLOBAL_DIR}/.dockerconfigjson" "${ICR_DIR}/.dockerconfigjson" > "${RESULT_FILE}"
 
 
 echo "Updating global pull secret"
