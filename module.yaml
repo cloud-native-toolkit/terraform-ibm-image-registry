@@ -25,8 +25,29 @@ versions:
       moduleRef:
         id: cluster
         output: config_file_path
+    - name: cluster_type_code
+      moduleRef:
+        id: cluster
+        output: type_code
     - name: cluster_namespace
       moduleRef:
         id: namespace
         output: name
         discriminator: tools
+    - name: resource_group_name
+      scope: global
+    - name: registry_namespace
+      scope: global
+    - name: registry_user
+      scope: ignore
+    - name: registry_password
+      scope: ignore
+    - name: cluster_region
+      scope: global
+      alias: region
+    - name: gitops_dir
+      scope: global
+    - name: ibmcloud_api_key
+      scope: global
+    - name: apply
+      scope: module
