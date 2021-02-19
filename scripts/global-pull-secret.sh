@@ -48,4 +48,5 @@ jq -s '.[0] * .[1]' "${GLOBAL_DIR}/.dockerconfigjson" "${ICR_DIR}/.dockerconfigj
 
 
 echo "Updating global pull secret"
-oc set data secret/pull-secret -n openshift-config --from-file=".dockerconfigjson=${RESULT_FILE}"
+oc create secret generic pull-secret -n openshift-config --from-file=".dockerconfigjson=${RESULT_FILE}" --dry-run=client -o yaml | \
+  oc apply -f -
