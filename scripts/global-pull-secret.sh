@@ -25,7 +25,7 @@ if ! oc get secret/all-icr-io -n default 1> /dev/null 2> /dev/null; then
 fi
 
 echo "Getting current global pull secret"
-oc extract secret/pull-secret -n openshift-config --to="${GLOBAL_DIR}"
+oc extract secret/pull-secret -n openshift-config --to="${GLOBAL_DIR}" --confirm
 if [[ ! -f "${GLOBAL_DIR}/.dockerconfigjson" ]]; then
   echo "Error retrieving global pull secret"
   exit 0
@@ -37,7 +37,7 @@ if grep -q "icr.io" "${GLOBAL_DIR}/.dockerconfigjson"; then
 fi
 
 echo "Getting icr pull secret"
-oc extract secret/all-icr-io -n default --to="${ICR_DIR}"
+oc extract secret/all-icr-io -n default --to="${ICR_DIR}" --confirm
 if [[ ! -f "${ICR_DIR}/.dockerconfigjson" ]]; then
   echo "Error retrieving icr pull secret"
   exit 0
@@ -46,7 +46,8 @@ fi
 echo "Merging pull secrets"
 jq -s '.[0] * .[1]' "${GLOBAL_DIR}/.dockerconfigjson" "${ICR_DIR}/.dockerconfigjson" > "${RESULT_FILE}"
 
+RESULT_BASE64=$(base64 < "${RESULT_FILE}")
+PATCH="[{\"op\": \"replace\", \"path\": \"/data/.dockerconfigjson\", \"value\": \"${RESULT_BASE64}\"}]"
 
-echo "Updating global pull secret"
-oc create secret generic pull-secret -n openshift-config --from-file=".dockerconfigjson=${RESULT_FILE}" --dry-run=client -o yaml | \
-  oc apply -f -
+echo "Patching global pull secret"
+oc patch secret pull-secret -n openshift-config --type=json -p="${PATCH}"
