@@ -52,3 +52,5 @@ versions:
       scope: global
     - name: apply
       scope: ignore
+    - name: private_endpoint
+      scope: global

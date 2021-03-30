@@ -22,7 +22,7 @@ locals {
     name = "registry"
     displayName = "Image Registry"
     url = "https://cloud.ibm.com/kubernetes/registry/main/images"
-    privateUrl = local.registry_url
+    privateUrl = "${var.private_endpoint == "true" ? "private." : ""}${local.registry_url}"
     otherSecrets = {
       namespace = local.registry_namespace
     }

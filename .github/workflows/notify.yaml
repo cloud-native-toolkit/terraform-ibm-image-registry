@@ -6,17 +6,11 @@ jobs:
   notify:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        repo:
-          - ibm-garage-cloud/ibm-garage-iteration-zero
-          - ibm-garage-cloud/garage-terraform-modules
-
     steps:
-      - name: Repository dispatch ${{ matrix.repo }}
+      - name: Publish repository dispatch
         uses: ibm-garage-cloud/action-repository-dispatch@main
         with:
-          notifyRepo: ${{ matrix.repo }}
+          notifyRepo: ibm-garage-cloud/ibm-garage-iteration-zero
           eventType: released
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
