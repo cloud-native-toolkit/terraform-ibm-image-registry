@@ -62,6 +62,6 @@ variable "apply" {
 
 variable "private_endpoint" {
   type        = string
-  description = "Flag indicating that the registru url should be created with private endpoints"
+  description = "Flag indicating that the registry url should be created with private endpoints"
   default     = "true"
 }

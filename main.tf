@@ -1,8 +1,3 @@
-provider "helm" {
-  kubernetes {
-    config_path = var.config_file_path
-  }
-}
 
 locals {
   tmp_dir               = "${path.cwd}/.tmp"
