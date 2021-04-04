@@ -39,13 +39,23 @@ resource "null_resource" "create_dirs" {
   }
 }
 
+resource null_resource ibmcloud_login {
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/ibmcloud-login.sh ${var.region} ${var.resource_group_name}"
+
+    environment = {
+      APIKEY = var.ibmcloud_api_key
+    }
+  }
+}
+
 # this should probably be moved to a separate module that operates at a namespace level
 resource "null_resource" "create_registry_namespace" {
   count = var.apply ? 1 : 0
-  depends_on = [null_resource.create_dirs]
+  depends_on = [null_resource.create_dirs, null_resource.ibmcloud_login]
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/create-registry-namespace.sh ${local.registry_namespace} ${var.cluster_region} ${local.registry_url_file}"
+    command = "${path.module}/scripts/create-registry-namespace.sh ${local.registry_namespace} ${var.region} ${local.registry_url_file}"
 
     environment = {
       KUBECONFIG = var.config_file_path

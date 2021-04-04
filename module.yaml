@@ -51,9 +51,8 @@ versions:
       scope: ignore
     - name: registry_password
       scope: ignore
-    - name: cluster_region
+    - name: region
       scope: global
-      alias: region
     - name: gitops_dir
       scope: global
     - name: ibmcloud_api_key

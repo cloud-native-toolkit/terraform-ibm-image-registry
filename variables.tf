@@ -22,9 +22,9 @@ variable "registry_password" {
   default     = ""
 }
 
-variable "cluster_region" {
+variable "region" {
   type        = string
-  description = "The IBM Cloud region where the cluster will be/has been installed."
+  description = "The region for the image registry been installed."
 }
 
 variable "config_file_path" {
