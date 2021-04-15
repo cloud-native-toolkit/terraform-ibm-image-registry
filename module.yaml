@@ -35,7 +35,7 @@ versions:
     - name: cluster_type_code
       moduleRef:
         id: cluster
-        output: type_code
+        output: platform.type_code
     - name: cluster_namespace
       moduleRef:
         id: namespace
