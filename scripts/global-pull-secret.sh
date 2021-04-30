@@ -47,7 +47,7 @@ echo "Merging pull secrets"
 jq -s '.[0] * .[1]' "${GLOBAL_DIR}/.dockerconfigjson" "${ICR_DIR}/.dockerconfigjson" > "${RESULT_FILE}"
 
 RESULT_BASE64=$(base64 < "${RESULT_FILE}")
-echo "{}" | jq -c --arg VALUE "${RESULT_BASE64}" '[{op: "replace", path: "/data/.dockerconfigjson", value: $VALUE}]' > patch-pull-secret.json
+echo "{}" | jq -c --arg VALUE "${RESULT_BASE64}" '[{op: "replace", path: "/data/.dockerconfigjson", value: $VALUE}]' > "${TMP_DIR}/patch-pull-secret.json"
 
 echo "Patching global pull secret"
-oc patch secret pull-secret -n openshift-config --type=json -p="$(cat patch-pull-secret.json)"
+oc patch secret pull-secret -n openshift-config --type=json -p="$(cat ${TMP_DIR}/patch-pull-secret.json)"
