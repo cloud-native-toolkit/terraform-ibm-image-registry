@@ -1,6 +1,7 @@
 
 locals {
   tmp_dir               = "${path.cwd}/.tmp"
+  bin_dir               = module.setup_clis.bin_dir
   gitops_dir            = var.gitops_dir != "" ? var.gitops_dir : "${path.cwd}/gitops"
   chart_name            = "image-registry"
   chart_dir             = "${local.gitops_dir}/${local.chart_name}"
@@ -23,8 +24,16 @@ locals {
     }
     username = "iamapikey"
     password = var.ibmcloud_api_key
-    applicationMenu = true
+    category = "container-registry"
+    applicationMenu = false
+    enableConsoleLink = true
   }
+}
+
+module setup_clis {
+  source = "github.com/cloud-native-toolkit/terraform-util-clis.git"
+
+  clis = ["helm"]
 }
 
 resource "null_resource" "create_dirs" {
@@ -55,7 +64,7 @@ resource "null_resource" "create_registry_namespace" {
   depends_on = [null_resource.create_dirs, null_resource.ibmcloud_login]
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/create-registry-namespace.sh ${local.registry_namespace} ${var.region} ${local.registry_url_file}"
+    command = "${path.module}/scripts/create-registry-namespace.sh ${local.registry_namespace} ${var.region}"
 
     environment = {
       KUBECONFIG = var.config_file_path
@@ -63,9 +72,21 @@ resource "null_resource" "create_registry_namespace" {
   }
 }
 
+resource null_resource write_registry_url {
+  depends_on = [null_resource.create_registry_namespace]
+
+  triggers = {
+    always = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/write-registry-url.sh ${var.region} ${local.registry_url_file}"
+  }
+}
+
 data "local_file" "registry_url" {
   count = var.apply ? 1 : 0
-  depends_on = [null_resource.create_registry_namespace]
+  depends_on = [null_resource.write_registry_url]
 
   filename = local.registry_url_file
 }
@@ -76,46 +97,6 @@ resource "null_resource" "setup-chart" {
 
   provisioner "local-exec" {
     command = "mkdir -p ${local.chart_dir} && cp -R ${path.module}/chart/${local.chart_name}/* ${local.chart_dir}"
-  }
-}
-
-resource "null_resource" "delete-helm-image-registry" {
-  count = var.apply ? 1 : 0
-
-  provisioner "local-exec" {
-    command = "kubectl delete secret -n ${var.cluster_namespace} -l name=${local.release_name} --ignore-not-found"
-
-    environment = {
-      KUBECONFIG = var.config_file_path
-    }
-  }
-
-  provisioner "local-exec" {
-    command = "kubectl delete secret -n ${var.cluster_namespace} registry-access --ignore-not-found"
-
-    environment = {
-      KUBECONFIG = var.config_file_path
-    }
-  }
-
-  provisioner "local-exec" {
-    command = "kubectl delete configmap -n ${var.cluster_namespace} registry-config --ignore-not-found"
-
-    environment = {
-      KUBECONFIG = var.config_file_path
-    }
-  }
-}
-
-resource "null_resource" "delete-consolelink" {
-  count      = var.cluster_type_code == "ocp4" && var.apply ? 1 : 0
-
-  provisioner "local-exec" {
-    command = "kubectl delete consolelink toolkit-registry --ignore-not-found"
-
-    environment = {
-      KUBECONFIG = var.config_file_path
-    }
   }
 }
 
@@ -137,19 +118,33 @@ resource "null_resource" "print-values" {
   }
 }
 
-resource "helm_release" "registry_setup" {
+resource null_resource registry_setup {
   count = var.apply ? 1 : 0
-  depends_on = [null_resource.delete-helm-image-registry, null_resource.delete-consolelink, local_file.image-registry-values]
+  depends_on = [local_file.image-registry-values]
 
-  name              = "image-registry"
-  chart             = local.chart_dir
-  namespace         = var.cluster_namespace
-  timeout           = 1200
-  dependency_update = true
-  force_update      = true
-  replace           = true
+  triggers = {
+    bin_dir = local.bin_dir
+    chart_dir = local.chart_dir
+    namespace = var.cluster_namespace
+    kubeconfig = var.config_file_path
+  }
 
-  disable_openapi_validation = true
+  provisioner "local-exec" {
+    command = "${self.triggers.bin_dir}/helm template image-registry ${self.triggers.chart_dir} -n ${self.triggers.namespace} | kubectl apply -n ${self.triggers.namespace} -f -"
+
+    environment = {
+      KUBECONFIG = self.triggers.kubeconfig
+    }
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+    command = "${self.triggers.bin_dir}/helm template image-registry ${self.triggers.chart_dir} -n ${self.triggers.namespace} | kubectl delete -n ${self.triggers.namespace} -f -"
+
+    environment = {
+      KUBECONFIG = self.triggers.kubeconfig
+    }
+  }
 }
 
 resource "null_resource" "set_global_pull_secret" {
