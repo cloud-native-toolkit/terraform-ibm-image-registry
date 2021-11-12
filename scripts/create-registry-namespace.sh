@@ -26,7 +26,7 @@ NS=$(ibmcloud cr namespaces | grep "${REGISTRY_NAMESPACE}" ||: )
 if [[ -z "${NS}" ]]; then
     echo -e "Registry namespace ${REGISTRY_NAMESPACE} not found, creating it."
     set -e
-    ibmcloud cr namespace-add "${REGISTRY_NAMESPACE}"
+    ibmcloud cr namespace-add "${REGISTRY_NAMESPACE}" -g "${RESOURCE_GROUP}" || exit 1
 else
     echo -e "Registry namespace ${REGISTRY_NAMESPACE} found."
 fi
