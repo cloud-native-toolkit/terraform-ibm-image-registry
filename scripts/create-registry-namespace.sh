@@ -2,7 +2,6 @@
 
 RESOURCE_GROUP="$1"
 REGION="$2"
-REGISTRY_URL_FILE="$3"
 
 # The name of a registry namespace cannot contain uppercase characters
 # Lowercase the resource group name, just in case...
@@ -29,9 +28,4 @@ if [[ -z "${NS}" ]]; then
     ibmcloud cr namespace-add "${REGISTRY_NAMESPACE}" -g "${RESOURCE_GROUP}" || exit 1
 else
     echo -e "Registry namespace ${REGISTRY_NAMESPACE} found."
-fi
-
-REGISTRY_URL=$(ibmcloud cr region | grep "icr.io" | sed -E "s/.*'(.*icr.io)'.*/\1/")
-if [[ -n "${REGISTRY_URL_FILE}" ]]; then
-  echo -n "${REGISTRY_URL}" > "${REGISTRY_URL_FILE}"
 fi

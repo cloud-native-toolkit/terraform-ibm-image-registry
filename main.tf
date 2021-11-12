@@ -55,7 +55,7 @@ resource "null_resource" "create_registry_namespace" {
   depends_on = [null_resource.create_dirs, null_resource.ibmcloud_login]
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/create-registry-namespace.sh ${local.registry_namespace} ${var.region} ${local.registry_url_file}"
+    command = "${path.module}/scripts/create-registry-namespace.sh ${local.registry_namespace} ${var.region}"
 
     environment = {
       KUBECONFIG = var.config_file_path
@@ -63,9 +63,21 @@ resource "null_resource" "create_registry_namespace" {
   }
 }
 
+resource null_resource write_registry_url {
+  depends_on = [null_resource.create_registry_namespace]
+
+  triggers = {
+    always = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/write-registry-url.sh ${var.region} ${local.registry_url_file}"
+  }
+}
+
 data "local_file" "registry_url" {
   count = var.apply ? 1 : 0
-  depends_on = [null_resource.create_registry_namespace]
+  depends_on = [null_resource.write_registry_url]
 
   filename = local.registry_url_file
 }
