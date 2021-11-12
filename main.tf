@@ -24,7 +24,7 @@ locals {
     }
     username = "iamapikey"
     password = var.ibmcloud_api_key
-    category = container-registry
+    category = "container-registry"
     applicationMenu = false
     enableConsoleLink = true
   }
