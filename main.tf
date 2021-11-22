@@ -49,6 +49,8 @@ resource "null_resource" "create_dirs" {
 }
 
 resource null_resource ibmcloud_login {
+  count = var.apply ? 1 : 0
+
   provisioner "local-exec" {
     command = "${path.module}/scripts/ibmcloud-login.sh ${var.region} ${var.resource_group_name}"
 
@@ -73,6 +75,7 @@ resource "null_resource" "create_registry_namespace" {
 }
 
 resource null_resource write_registry_url {
+  count = var.apply ? 1 : 0
   depends_on = [null_resource.create_registry_namespace]
 
   triggers = {
