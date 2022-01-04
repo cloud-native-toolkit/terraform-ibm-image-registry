@@ -66,7 +66,7 @@ resource "null_resource" "create_registry_namespace" {
   depends_on = [null_resource.create_dirs, null_resource.ibmcloud_login]
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/create-registry-namespace.sh ${local.registry_namespace} ${var.region}"
+    command = "${path.module}/scripts/create-registry-namespace.sh ${local.registry_namespace} ${var.resource_group_name} ${var.region}"
 
     environment = {
       KUBECONFIG = var.config_file_path

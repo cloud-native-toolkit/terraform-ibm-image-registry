@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
-RESOURCE_GROUP="$1"
-REGION="$2"
+REGISTRY_NAMESPACE="$1"
+RESOURCE_GROUP="$2"
+REGION="$3"
 
 # The name of a registry namespace cannot contain uppercase characters
 # Lowercase the resource group name, just in case...
-REGISTRY_NAMESPACE=$(echo "$RESOURCE_GROUP" | tr '[:upper:]' '[:lower:]')
+REGISTRY_NAMESPACE=$(echo "$REGISTRY_NAMESPACE" | tr '[:upper:]' '[:lower:]')
 
 if [[ "${REGION}" =~ "us-" ]]; then
   REGION="us-south"
