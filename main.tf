@@ -48,6 +48,12 @@ resource "null_resource" "create_dirs" {
   }
 }
 
+resource null_resource ibmcloud_crplugin {
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/install-cr-plugin.sh"
+  }
+}
+
 resource null_resource ibmcloud_login {
   count = var.apply ? 1 : 0
 
@@ -63,7 +69,7 @@ resource null_resource ibmcloud_login {
 # this should probably be moved to a separate module that operates at a namespace level
 resource "null_resource" "create_registry_namespace" {
   count = var.apply ? 1 : 0
-  depends_on = [null_resource.create_dirs, null_resource.ibmcloud_login]
+  depends_on = [null_resource.create_dirs, null_resource.ibmcloud_login, null_resource.ibmcloud_crplugin]
 
   provisioner "local-exec" {
     command = "${path.module}/scripts/create-registry-namespace.sh ${local.registry_namespace} ${var.resource_group_name} ${var.region}"
