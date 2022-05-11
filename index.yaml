@@ -2,7 +2,9 @@ id: github.com/cloud-native-toolkit/terraform-ibm-image-registry
 name: ibm-image-registry
 alias: registry
 type: terraform
-description: Module to set up a namespace in the IBM Container Registry and configure the cluster
+description: >-
+  Module to set up a namespace in the IBM Container Registry and configure the
+  cluster
 tags:
   - tools
   - devops
@@ -15,19 +17,116 @@ versions:
       - id: cluster
         refs:
           - source: github.com/cloud-native-toolkit/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/cloud-native-toolkit/terraform-ibm-ocp-vpc
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
       - id: resource_group
         refs:
           - source: github.com/cloud-native-toolkit/terraform-ibm-resource-group
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
+    variables:
+      - name: resource_group_name
+        type: string
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
+        moduleRef:
+          id: resource_group
+          output: name
+      - name: registry_namespace
+        type: string
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
+        default: ''
+        scope: global
+      - name: registry_user
+        type: string
+        description: The username to authenticate to the IBM Container Registry
+        default: iamapikey
+        scope: ignore
+      - name: registry_password
+        type: string
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
+        default: ''
+        scope: ignore
+      - name: region
+        type: string
+        description: The region for the image registry been installed.
+        scope: global
+      - name: config_file_path
+        type: string
+        description: The path to the kube config
+        moduleRef:
+          id: cluster
+          output: config_file_path
+      - name: ibmcloud_api_key
+        type: string
+        description: The IBM Cloud api token
+        scope: global
+      - name: cluster_namespace
+        type: string
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
+        moduleRef:
+          id: namespace
+          output: name
+      - name: gitops_dir
+        type: string
+        description: The directory where the gitops configuration should be stored
+        default: ''
+        scope: global
+      - name: cluster_type_code
+        type: string
+        description: The cluster_type of the cluster
+        default: ocp4
+        moduleRef:
+          id: cluster
+          output: platform.type_code
+      - name: apply
+        type: bool
+        description: Flag indicating that the module should be applied
+        default: true
+        scope: ignore
+      - name: private_endpoint
+        type: string
+        description: >-
+          Flag indicating that the registry url should be created with private
+          endpoints
+        default: 'true'
+        scope: global
+    version: v2.1.3
+    outputs: []
+  - platforms:
+      - kubernetes
+      - ocp3
+      - ocp4
+    dependencies:
+      - id: cluster
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-ibm-container-platform
+            version: '>= 1.7.0'
+          - source: github.com/cloud-native-toolkit/terraform-ibm-ocp-vpc
+            version: '>= 1.0.0'
+          - source: github.com/cloud-native-toolkit/terraform-k8s-ocp-cluster
+            version: '>= 2.0.0'
+      - id: namespace
+        refs:
+          - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
+            version: '>= 2.1.0'
+      - id: resource_group
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-ibm-resource-group
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -48,18 +147,24 @@ versions:
           id: namespace
           output: name
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         moduleRef:
           id: resource_group
           output: name
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         scope: global
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
-        default: ""
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
+        default: ''
         optional: true
       - name: registry_user
         scope: ignore
@@ -70,8 +175,10 @@ versions:
       - name: registry_password
         scope: ignore
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
-        default: ""
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
+        default: ''
         optional: true
       - name: region
         scope: global
@@ -81,7 +188,7 @@ versions:
         scope: global
         type: string
         description: The directory where the gitops configuration should be stored
-        default: ""
+        default: ''
         optional: true
       - name: ibmcloud_api_key
         scope: global
@@ -96,8 +203,10 @@ versions:
       - name: private_endpoint
         scope: global
         type: string
-        description: Flag indicating that the registry url should be created with private endpoints
-        default: "true"
+        description: >-
+          Flag indicating that the registry url should be created with private
+          endpoints
+        default: 'true'
         optional: true
     version: v2.1.2
   - platforms:
@@ -108,19 +217,19 @@ versions:
       - id: cluster
         refs:
           - source: github.com/cloud-native-toolkit/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/cloud-native-toolkit/terraform-ibm-ocp-vpc
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
       - id: resource_group
         refs:
           - source: github.com/cloud-native-toolkit/terraform-ibm-resource-group
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -141,18 +250,24 @@ versions:
           id: namespace
           output: name
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         moduleRef:
           id: resource_group
           output: name
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         scope: global
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
-        default: ""
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
+        default: ''
         optional: true
       - name: registry_user
         scope: ignore
@@ -163,8 +278,10 @@ versions:
       - name: registry_password
         scope: ignore
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
-        default: ""
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
+        default: ''
         optional: true
       - name: region
         scope: global
@@ -174,7 +291,7 @@ versions:
         scope: global
         type: string
         description: The directory where the gitops configuration should be stored
-        default: ""
+        default: ''
         optional: true
       - name: ibmcloud_api_key
         scope: global
@@ -189,8 +306,10 @@ versions:
       - name: private_endpoint
         scope: global
         type: string
-        description: Flag indicating that the registry url should be created with private endpoints
-        default: "true"
+        description: >-
+          Flag indicating that the registry url should be created with private
+          endpoints
+        default: 'true'
         optional: true
     version: v2.1.1
   - platforms:
@@ -201,19 +320,19 @@ versions:
       - id: cluster
         refs:
           - source: github.com/cloud-native-toolkit/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/cloud-native-toolkit/terraform-ibm-ocp-vpc
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
       - id: resource_group
         refs:
           - source: github.com/cloud-native-toolkit/terraform-ibm-resource-group
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -234,18 +353,24 @@ versions:
           id: namespace
           output: name
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         moduleRef:
           id: resource_group
           output: name
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         scope: global
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
-        default: ""
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
+        default: ''
         optional: true
       - name: registry_user
         scope: ignore
@@ -256,8 +381,10 @@ versions:
       - name: registry_password
         scope: ignore
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
-        default: ""
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
+        default: ''
         optional: true
       - name: region
         scope: global
@@ -267,7 +394,7 @@ versions:
         scope: global
         type: string
         description: The directory where the gitops configuration should be stored
-        default: ""
+        default: ''
         optional: true
       - name: ibmcloud_api_key
         scope: global
@@ -282,8 +409,10 @@ versions:
       - name: private_endpoint
         scope: global
         type: string
-        description: Flag indicating that the registry url should be created with private endpoints
-        default: "true"
+        description: >-
+          Flag indicating that the registry url should be created with private
+          endpoints
+        default: 'true'
         optional: true
     version: v2.1.0
   - platforms:
@@ -294,19 +423,19 @@ versions:
       - id: cluster
         refs:
           - source: github.com/cloud-native-toolkit/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/cloud-native-toolkit/terraform-ibm-ocp-vpc
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
       - id: resource_group
         refs:
           - source: github.com/cloud-native-toolkit/terraform-ibm-resource-group
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -327,18 +456,24 @@ versions:
           id: namespace
           output: name
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         moduleRef:
           id: resource_group
           output: name
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         scope: global
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
-        default: ""
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
+        default: ''
         optional: true
       - name: registry_user
         scope: ignore
@@ -349,8 +484,10 @@ versions:
       - name: registry_password
         scope: ignore
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
-        default: ""
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
+        default: ''
         optional: true
       - name: region
         scope: global
@@ -360,7 +497,7 @@ versions:
         scope: global
         type: string
         description: The directory where the gitops configuration should be stored
-        default: ""
+        default: ''
         optional: true
       - name: ibmcloud_api_key
         scope: global
@@ -375,8 +512,10 @@ versions:
       - name: private_endpoint
         scope: global
         type: string
-        description: Flag indicating that the registry url should be created with private endpoints
-        default: "true"
+        description: >-
+          Flag indicating that the registry url should be created with private
+          endpoints
+        default: 'true'
         optional: true
     version: v2.0.3
   - platforms:
@@ -387,19 +526,19 @@ versions:
       - id: cluster
         refs:
           - source: github.com/cloud-native-toolkit/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/cloud-native-toolkit/terraform-ibm-ocp-vpc
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
       - id: resource_group
         refs:
           - source: github.com/cloud-native-toolkit/terraform-ibm-resource-group
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -420,18 +559,24 @@ versions:
           id: namespace
           output: name
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         moduleRef:
           id: resource_group
           output: name
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         scope: global
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
-        default: ""
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
+        default: ''
         optional: true
       - name: registry_user
         scope: ignore
@@ -442,8 +587,10 @@ versions:
       - name: registry_password
         scope: ignore
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
-        default: ""
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
+        default: ''
         optional: true
       - name: region
         scope: global
@@ -453,7 +600,7 @@ versions:
         scope: global
         type: string
         description: The directory where the gitops configuration should be stored
-        default: ""
+        default: ''
         optional: true
       - name: ibmcloud_api_key
         scope: global
@@ -468,8 +615,10 @@ versions:
       - name: private_endpoint
         scope: global
         type: string
-        description: Flag indicating that the registry url should be created with private endpoints
-        default: "true"
+        description: >-
+          Flag indicating that the registry url should be created with private
+          endpoints
+        default: 'true'
         optional: true
     version: v2.0.2
   - platforms:
@@ -480,19 +629,19 @@ versions:
       - id: cluster
         refs:
           - source: github.com/cloud-native-toolkit/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/cloud-native-toolkit/terraform-ibm-ocp-vpc
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
       - id: resource_group
         refs:
           - source: github.com/cloud-native-toolkit/terraform-ibm-resource-group
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -514,18 +663,24 @@ versions:
           output: name
           discriminator: tools
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         moduleRef:
           id: resource_group
           output: name
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         scope: global
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
-        default: ""
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
+        default: ''
         optional: true
       - name: registry_user
         scope: ignore
@@ -536,8 +691,10 @@ versions:
       - name: registry_password
         scope: ignore
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
-        default: ""
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
+        default: ''
         optional: true
       - name: region
         scope: global
@@ -547,7 +704,7 @@ versions:
         scope: global
         type: string
         description: The directory where the gitops configuration should be stored
-        default: ""
+        default: ''
         optional: true
       - name: ibmcloud_api_key
         scope: global
@@ -562,8 +719,10 @@ versions:
       - name: private_endpoint
         scope: global
         type: string
-        description: Flag indicating that the registry url should be created with private endpoints
-        default: "true"
+        description: >-
+          Flag indicating that the registry url should be created with private
+          endpoints
+        default: 'true'
         optional: true
     version: v2.0.1
   - platforms:
@@ -574,19 +733,19 @@ versions:
       - id: cluster
         refs:
           - source: github.com/cloud-native-toolkit/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/cloud-native-toolkit/terraform-ibm-ocp-vpc
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
           - source: github.com/cloud-native-toolkit/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
       - id: resource_group
         refs:
           - source: github.com/cloud-native-toolkit/terraform-ibm-resource-group
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -608,18 +767,24 @@ versions:
           output: name
           discriminator: tools
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         moduleRef:
           id: resource_group
           output: name
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         scope: global
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
-        default: ""
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
+        default: ''
         optional: true
       - name: registry_user
         scope: ignore
@@ -630,8 +795,10 @@ versions:
       - name: registry_password
         scope: ignore
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
-        default: ""
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
+        default: ''
         optional: true
       - name: region
         scope: global
@@ -641,7 +808,7 @@ versions:
         scope: global
         type: string
         description: The directory where the gitops configuration should be stored
-        default: ""
+        default: ''
         optional: true
       - name: ibmcloud_api_key
         scope: global
@@ -656,8 +823,10 @@ versions:
       - name: private_endpoint
         scope: global
         type: string
-        description: Flag indicating that the registry url should be created with private endpoints
-        default: "true"
+        description: >-
+          Flag indicating that the registry url should be created with private
+          endpoints
+        default: 'true'
         optional: true
     version: v2.0.0
   - platforms:
@@ -668,13 +837,13 @@ versions:
       - id: cluster
         refs:
           - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -696,16 +865,22 @@ versions:
           output: name
           discriminator: tools
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         scope: global
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         scope: global
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
-        default: ""
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
+        default: ''
         optional: true
       - name: registry_user
         scope: ignore
@@ -716,8 +891,10 @@ versions:
       - name: registry_password
         scope: ignore
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
-        default: ""
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
+        default: ''
         optional: true
       - name: cluster_region
         scope: global
@@ -728,7 +905,7 @@ versions:
         scope: global
         type: string
         description: The directory where the gitops configuration should be stored
-        default: ""
+        default: ''
         optional: true
       - name: ibmcloud_api_key
         scope: global
@@ -743,8 +920,10 @@ versions:
       - name: private_endpoint
         scope: global
         type: string
-        description: Flag indicating that the registru url should be created with private endpoints
-        default: "true"
+        description: >-
+          Flag indicating that the registru url should be created with private
+          endpoints
+        default: 'true'
         optional: true
     version: v1.5.0
   - platforms:
@@ -755,13 +934,13 @@ versions:
       - id: cluster
         refs:
           - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -783,16 +962,22 @@ versions:
           output: name
           discriminator: tools
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         scope: global
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         scope: global
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
-        default: ""
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
+        default: ''
         optional: true
       - name: registry_user
         scope: ignore
@@ -803,8 +988,10 @@ versions:
       - name: registry_password
         scope: ignore
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
-        default: ""
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
+        default: ''
         optional: true
       - name: cluster_region
         scope: global
@@ -815,7 +1002,7 @@ versions:
         scope: global
         type: string
         description: The directory where the gitops configuration should be stored
-        default: ""
+        default: ''
         optional: true
       - name: ibmcloud_api_key
         scope: global
@@ -836,13 +1023,13 @@ versions:
       - id: cluster
         refs:
           - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -864,15 +1051,21 @@ versions:
           output: name
           discriminator: tools
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         scope: global
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         scope: global
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
       - name: registry_user
         scope: ignore
         type: string
@@ -882,7 +1075,9 @@ versions:
       - name: registry_password
         scope: ignore
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
       - name: cluster_region
         scope: global
         alias: region
@@ -911,13 +1106,13 @@ versions:
       - id: cluster
         refs:
           - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -939,15 +1134,21 @@ versions:
           output: name
           discriminator: tools
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         scope: global
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         scope: global
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
       - name: registry_user
         scope: ignore
         type: string
@@ -957,7 +1158,9 @@ versions:
       - name: registry_password
         scope: ignore
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
       - name: cluster_region
         scope: global
         alias: region
@@ -986,13 +1189,13 @@ versions:
       - id: cluster
         refs:
           - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -1014,15 +1217,21 @@ versions:
           output: name
           discriminator: tools
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         scope: global
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         scope: global
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
       - name: registry_user
         scope: ignore
         type: string
@@ -1032,7 +1241,9 @@ versions:
       - name: registry_password
         scope: ignore
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
       - name: cluster_region
         scope: global
         alias: region
@@ -1061,13 +1272,13 @@ versions:
       - id: cluster
         refs:
           - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -1081,13 +1292,19 @@ versions:
           output: name
           discriminator: tools
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
         optional: true
       - name: registry_user
         type: string
@@ -1095,7 +1312,9 @@ versions:
         optional: true
       - name: registry_password
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
         optional: true
       - name: cluster_region
         type: string
@@ -1131,13 +1350,13 @@ versions:
       - id: cluster
         refs:
           - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -1151,13 +1370,19 @@ versions:
           output: name
           discriminator: tools
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
         optional: true
       - name: registry_user
         type: string
@@ -1165,7 +1390,9 @@ versions:
         optional: true
       - name: registry_password
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
         optional: true
       - name: cluster_region
         type: string
@@ -1201,13 +1428,13 @@ versions:
       - id: cluster
         refs:
           - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -1221,13 +1448,19 @@ versions:
           output: name
           discriminator: tools
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
         optional: true
       - name: registry_user
         type: string
@@ -1235,7 +1468,9 @@ versions:
         optional: true
       - name: registry_password
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
         optional: true
       - name: cluster_region
         type: string
@@ -1271,13 +1506,13 @@ versions:
       - id: cluster
         refs:
           - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -1291,13 +1526,19 @@ versions:
           output: name
           discriminator: tools
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
         optional: true
       - name: registry_user
         type: string
@@ -1305,7 +1546,9 @@ versions:
         optional: true
       - name: registry_password
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
         optional: true
       - name: cluster_region
         type: string
@@ -1341,13 +1584,13 @@ versions:
       - id: cluster
         refs:
           - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
-            version: ">= 2.1.0"
+            version: '>= 2.1.0'
     variables:
       - name: config_file_path
         moduleRef:
@@ -1361,13 +1604,19 @@ versions:
           output: name
           discriminator: tools
         type: string
-        description: The namespace in the cluster where the configuration should be created (e.g. tools)
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
       - name: resource_group_name
         type: string
-        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
       - name: registry_namespace
         type: string
-        description: The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
         optional: true
       - name: registry_user
         type: string
@@ -1375,7 +1624,9 @@ versions:
         optional: true
       - name: registry_password
         type: string
-        description: The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
         optional: true
       - name: cluster_region
         type: string
