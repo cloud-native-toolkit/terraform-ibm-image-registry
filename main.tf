@@ -9,7 +9,7 @@ locals {
   registry_namespace    = var.registry_namespace != "" ? var.registry_namespace : var.resource_group_name
   registry_user         = var.registry_user != "" ? var.registry_user : "iamapikey"
   registry_password     = var.registry_password != "" ? var.registry_password : var.ibmcloud_api_key
-  registry_url          = var.apply ? data.local_file.registry_url[0].content : ""
+  registry_url          = var.apply ? module.registry_namespace.registry_server : ""
   release_name          = "image-registry"
   global_config = {
     clusterType = var.cluster_type_code
@@ -48,50 +48,15 @@ resource "null_resource" "create_dirs" {
   }
 }
 
-resource null_resource ibmcloud_login {
-  count = var.apply ? 1 : 0
+module "registry_namespace" {
+  source = "github.com/cloud-native-toolkit/terraform-ibm-container-registry?ref=v1.1.2"
 
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/ibmcloud-login.sh ${var.region} ${var.resource_group_name}"
-
-    environment = {
-      APIKEY = var.ibmcloud_api_key
-    }
-  }
-}
-
-# this should probably be moved to a separate module that operates at a namespace level
-resource "null_resource" "create_registry_namespace" {
-  count = var.apply ? 1 : 0
-  depends_on = [null_resource.create_dirs, null_resource.ibmcloud_login]
-
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/create-registry-namespace.sh ${local.registry_namespace} ${var.resource_group_name} ${var.region}"
-
-    environment = {
-      KUBECONFIG = var.config_file_path
-    }
-  }
-}
-
-resource null_resource write_registry_url {
-  count = var.apply ? 1 : 0
-  depends_on = [null_resource.create_registry_namespace]
-
-  triggers = {
-    always = timestamp()
-  }
-
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/write-registry-url.sh ${var.region} ${local.registry_url_file}"
-  }
-}
-
-data "local_file" "registry_url" {
-  count = var.apply ? 1 : 0
-  depends_on = [null_resource.write_registry_url]
-
-  filename = local.registry_url_file
+  resource_group_name = var.resource_group_name
+  region              = var.region
+  ibmcloud_api_key    = var.ibmcloud_api_key
+  registry_namespace  = var.registry_namespace
+  registry_user       = var.registry_user
+  registry_password   = var.registry_password
 }
 
 resource "null_resource" "setup-chart" {
