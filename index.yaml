@@ -104,6 +104,103 @@ versions:
           endpoints
         default: 'true'
         scope: global
+    version: v2.1.4
+    outputs: []
+  - platforms:
+      - kubernetes
+      - ocp3
+      - ocp4
+    dependencies:
+      - id: cluster
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-ibm-container-platform
+            version: '>= 1.7.0'
+          - source: github.com/cloud-native-toolkit/terraform-ibm-ocp-vpc
+            version: '>= 1.0.0'
+          - source: github.com/cloud-native-toolkit/terraform-k8s-ocp-cluster
+            version: '>= 2.0.0'
+      - id: namespace
+        refs:
+          - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
+            version: '>= 2.1.0'
+      - id: resource_group
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-ibm-resource-group
+            version: '>= 2.1.0'
+    variables:
+      - name: resource_group_name
+        type: string
+        description: >-
+          The name of the IBM Cloud resource group where the cluster will be
+          created/can be found.
+        moduleRef:
+          id: resource_group
+          output: name
+      - name: registry_namespace
+        type: string
+        description: >-
+          The namespace that will be created in the IBM Cloud image registry. If
+          not provided the value will default to the resource group
+        default: ''
+        scope: global
+      - name: registry_user
+        type: string
+        description: The username to authenticate to the IBM Container Registry
+        default: iamapikey
+        scope: ignore
+      - name: registry_password
+        type: string
+        description: >-
+          The password (API key) to authenticate to the IBM Container Registry.
+          If not provided the value will default to `var.ibmcloud_api_key`
+        default: ''
+        scope: ignore
+      - name: region
+        type: string
+        description: The region for the image registry been installed.
+        scope: global
+      - name: config_file_path
+        type: string
+        description: The path to the kube config
+        moduleRef:
+          id: cluster
+          output: config_file_path
+      - name: ibmcloud_api_key
+        type: string
+        description: The IBM Cloud api token
+        scope: global
+      - name: cluster_namespace
+        type: string
+        description: >-
+          The namespace in the cluster where the configuration should be created
+          (e.g. tools)
+        moduleRef:
+          id: namespace
+          output: name
+      - name: gitops_dir
+        type: string
+        description: The directory where the gitops configuration should be stored
+        default: ''
+        scope: global
+      - name: cluster_type_code
+        type: string
+        description: The cluster_type of the cluster
+        default: ocp4
+        moduleRef:
+          id: cluster
+          output: platform.type_code
+      - name: apply
+        type: bool
+        description: Flag indicating that the module should be applied
+        default: true
+        scope: ignore
+      - name: private_endpoint
+        type: string
+        description: >-
+          Flag indicating that the registry url should be created with private
+          endpoints
+        default: 'true'
+        scope: global
     version: v2.1.3
     outputs: []
   - platforms:
