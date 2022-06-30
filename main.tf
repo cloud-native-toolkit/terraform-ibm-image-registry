@@ -49,7 +49,7 @@ resource "null_resource" "create_dirs" {
 }
 
 module "registry_namespace" {
-  source = "github.com/cloud-native-toolkit/terraform-ibm-container-registry?ref=v1.1.2"
+  source = "github.com/cloud-native-toolkit/terraform-ibm-container-registry?ref=v1.1.3"
   count = var.apply ? 1 : 0
 
   resource_group_name = var.resource_group_name
