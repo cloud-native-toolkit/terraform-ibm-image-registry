@@ -9,7 +9,7 @@ locals {
   registry_namespace    = var.registry_namespace != "" ? var.registry_namespace : var.resource_group_name
   registry_user         = var.registry_user != "" ? var.registry_user : "iamapikey"
   registry_password     = var.registry_password != "" ? var.registry_password : var.ibmcloud_api_key
-  registry_url          = var.apply ? module.registry_namespace.registry_server : ""
+  registry_url          = var.apply ? module.registry_namespace[0].registry_server : ""
   release_name          = "image-registry"
   global_config = {
     clusterType = var.cluster_type_code
@@ -49,7 +49,7 @@ resource "null_resource" "create_dirs" {
 }
 
 module "registry_namespace" {
-  source = "github.com/cloud-native-toolkit/terraform-ibm-container-registry?ref=v1.1.2"
+  source = "github.com/cloud-native-toolkit/terraform-ibm-container-registry?ref=v1.1.3"
   count = var.apply ? 1 : 0
 
   resource_group_name = var.resource_group_name
