@@ -27,6 +27,8 @@ This module makes use of the output from other modules:
 
 ## Example usage
 
+[Refer test cases for more details](test/stages/stage2-image-registry.tf)
+
 ```hcl-terraform
 module "registry" {
   source = "github.com/ibm-garage-cloud/terraform-ibm-image-registry.git"
