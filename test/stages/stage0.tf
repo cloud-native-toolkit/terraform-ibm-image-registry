@@ -6,7 +6,7 @@ locals {
 }
 
 resource "random_string" "name-prefix" {
-  length           = 16
+  length           = 5
   special          = false
   upper = false
   override_special = "/*$"
