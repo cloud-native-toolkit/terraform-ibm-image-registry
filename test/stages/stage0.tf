@@ -9,5 +9,5 @@ resource "random_string" "name-prefix" {
   length           = 5
   special          = false
   upper = false
-  override_special = "/*$"
+  numeric = false
 }
