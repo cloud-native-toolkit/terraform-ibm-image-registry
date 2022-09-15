@@ -1,7 +1,7 @@
 module "dev_cluster" {
   source = "github.com/cloud-native-toolkit/terraform-ibm-ocp-vpc.git"
 
-  resource_group_name = module.resource_group_name
+  resource_group_name = module.resource_group.name
   region              = var.region
   ibmcloud_api_key    = var.ibmcloud_api_key
   name                = var.cluster_name
