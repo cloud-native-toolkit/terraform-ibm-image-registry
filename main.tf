@@ -1,7 +1,7 @@
 
 locals {
   tmp_dir               = "${path.cwd}/.tmp"
-  bin_dir               = module.setup_clis.bin_dir
+  bin_dir               = data.clis_check.clis.bin_dir
   gitops_dir            = var.gitops_dir != "" ? var.gitops_dir : "${path.cwd}/gitops"
   chart_name            = "image-registry"
   chart_dir             = "${local.gitops_dir}/${local.chart_name}"
@@ -30,9 +30,7 @@ locals {
   }
 }
 
-module setup_clis {
-  source = "github.com/cloud-native-toolkit/terraform-util-clis.git"
-
+data clis_check clis {
   clis = ["helm"]
 }
 
@@ -49,7 +47,7 @@ resource "null_resource" "create_dirs" {
 }
 
 module "registry_namespace" {
-  source = "github.com/cloud-native-toolkit/terraform-ibm-container-registry?ref=v1.1.3"
+  source = "github.com/terraform-ibm-modules/terraform-ibm-toolkit-container-registry.git?ref=v1.1.5"
   count = var.apply ? 1 : 0
 
   resource_group_name = var.resource_group_name
