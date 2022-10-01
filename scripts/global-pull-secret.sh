@@ -7,6 +7,10 @@ if [[ ! "${CLUSTER_TYPE}" =~ ocp4 ]]; then
   exit 0
 fi
 
+if [[ -n "${BIN_DIR}" ]]; then
+  export PATH="${BIN_DIR}:${PATH}"
+fi
+
 if [[ -z "${TMP_DIR}" ]]; then
   TMP_DIR="${PWD}/tmp"
 fi

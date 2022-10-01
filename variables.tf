@@ -20,6 +20,7 @@ variable "registry_password" {
   type        = string
   description = "The password (API key) to authenticate to the IBM Container Registry. If not provided the value will default to `var.ibmcloud_api_key`"
   default     = ""
+  sensitive   = true
 }
 
 variable "region" {

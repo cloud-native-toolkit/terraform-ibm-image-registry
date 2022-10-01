@@ -31,7 +31,7 @@ locals {
 }
 
 data clis_check clis {
-  clis = ["helm"]
+  clis = ["helm", "oc", "kubectl"]
 }
 
 resource "null_resource" "create_dirs" {
@@ -97,7 +97,7 @@ resource null_resource registry_setup {
   }
 
   provisioner "local-exec" {
-    command = "${self.triggers.bin_dir}/helm template image-registry ${self.triggers.chart_dir} -n ${self.triggers.namespace} | kubectl apply -n ${self.triggers.namespace} -f -"
+    command = "${self.triggers.bin_dir}/helm template image-registry ${self.triggers.chart_dir} -n ${self.triggers.namespace} | ${self.triggers.bin_dir}/kubectl apply -n ${self.triggers.namespace} -f -"
 
     environment = {
       KUBECONFIG = self.triggers.kubeconfig
@@ -106,7 +106,7 @@ resource null_resource registry_setup {
 
   provisioner "local-exec" {
     when = destroy
-    command = "${self.triggers.bin_dir}/helm template image-registry ${self.triggers.chart_dir} -n ${self.triggers.namespace} | kubectl delete -n ${self.triggers.namespace} -f -"
+    command = "${self.triggers.bin_dir}/helm template image-registry ${self.triggers.chart_dir} -n ${self.triggers.namespace} | ${self.triggers.bin_dir}/kubectl delete -n ${self.triggers.namespace} -f -"
 
     environment = {
       KUBECONFIG = self.triggers.kubeconfig
@@ -122,6 +122,7 @@ resource "null_resource" "set_global_pull_secret" {
     command = "${path.module}/scripts/global-pull-secret.sh ${var.cluster_type_code}"
 
     environment = {
+      BIN_DIR    = local.bin_dir
       TMP_DIR    = local.tmp_dir
       KUBECONFIG = var.config_file_path
     }
