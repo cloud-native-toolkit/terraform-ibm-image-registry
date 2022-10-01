@@ -6,4 +6,9 @@ module "dev_tools_mymodule" {
   config_file_path    = module.dev_cluster.config_file_path
   ibmcloud_api_key    = var.ibmcloud_api_key
   cluster_namespace   = module.dev_tools_namespace.name
+  registry_namespace  = module.resource_group.name
+}
+
+locals {
+  name-random = "${local.name_prefix}-${var.namespace}"
 }

@@ -1,7 +1,7 @@
 
 locals {
   tmp_dir               = "${path.cwd}/.tmp"
-  bin_dir               = module.setup_clis.bin_dir
+  bin_dir               = data.clis_check.clis.bin_dir
   gitops_dir            = var.gitops_dir != "" ? var.gitops_dir : "${path.cwd}/gitops"
   chart_name            = "image-registry"
   chart_dir             = "${local.gitops_dir}/${local.chart_name}"
@@ -30,10 +30,8 @@ locals {
   }
 }
 
-module setup_clis {
-  source = "github.com/cloud-native-toolkit/terraform-util-clis.git"
-
-  clis = ["helm"]
+data clis_check clis {
+  clis = ["helm", "oc", "kubectl"]
 }
 
 resource "null_resource" "create_dirs" {
@@ -49,7 +47,7 @@ resource "null_resource" "create_dirs" {
 }
 
 module "registry_namespace" {
-  source = "github.com/cloud-native-toolkit/terraform-ibm-container-registry?ref=v1.1.3"
+  source = "github.com/terraform-ibm-modules/terraform-ibm-toolkit-container-registry.git?ref=v1.1.5"
   count = var.apply ? 1 : 0
 
   resource_group_name = var.resource_group_name
@@ -99,7 +97,7 @@ resource null_resource registry_setup {
   }
 
   provisioner "local-exec" {
-    command = "${self.triggers.bin_dir}/helm template image-registry ${self.triggers.chart_dir} -n ${self.triggers.namespace} | kubectl apply -n ${self.triggers.namespace} -f -"
+    command = "${self.triggers.bin_dir}/helm template image-registry ${self.triggers.chart_dir} -n ${self.triggers.namespace} | ${self.triggers.bin_dir}/kubectl apply -n ${self.triggers.namespace} -f -"
 
     environment = {
       KUBECONFIG = self.triggers.kubeconfig
@@ -108,7 +106,7 @@ resource null_resource registry_setup {
 
   provisioner "local-exec" {
     when = destroy
-    command = "${self.triggers.bin_dir}/helm template image-registry ${self.triggers.chart_dir} -n ${self.triggers.namespace} | kubectl delete -n ${self.triggers.namespace} -f -"
+    command = "${self.triggers.bin_dir}/helm template image-registry ${self.triggers.chart_dir} -n ${self.triggers.namespace} | ${self.triggers.bin_dir}/kubectl delete -n ${self.triggers.namespace} -f -"
 
     environment = {
       KUBECONFIG = self.triggers.kubeconfig
@@ -124,6 +122,7 @@ resource "null_resource" "set_global_pull_secret" {
     command = "${path.module}/scripts/global-pull-secret.sh ${var.cluster_type_code}"
 
     environment = {
+      BIN_DIR    = local.bin_dir
       TMP_DIR    = local.tmp_dir
       KUBECONFIG = var.config_file_path
     }
